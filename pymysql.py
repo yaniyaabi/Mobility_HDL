@@ -1,5 +1,5 @@
 import streamlit as st
-import pyodbc
+import pymssql
 
 
 class OperationalError(Exception):
@@ -13,19 +13,18 @@ class err:
 def connect(*args, **kwargs):
     try:
         db = st.secrets["database"]
-
-        conn_str = (
-            f"DRIVER={db['driver']};"
-            f"SERVER={db['host']},{db['port']};"
-            f"DATABASE={db['db']};"
-            f"UID={db['user']};"
-            f"PWD={db['passwd']};"
-            f"Encrypt={db.get('encrypt', 'yes')};"
-            f"TrustServerCertificate={db.get('trust_server_certificate', 'no')};"
+        return pymssql.connect(
+            server=db["host"],
+            user=db["user"],
+            password=db["passwd"],
+            database=db["db"],
+            port=int(db.get("port", 1433)),
+            login_timeout=30,
+            timeout=30,
+            as_dict=False,
         )
-        return pyodbc.connect(conn_str)
     except Exception as e:
         import traceback
         print("DB CONNECT ERROR:", repr(e))
         traceback.print_exc()
-        raise
+        raise OperationalError(str(e))
