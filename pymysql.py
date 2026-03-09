@@ -25,4 +25,7 @@ def connect(*args, **kwargs):
         )
         return pyodbc.connect(conn_str)
     except Exception as e:
-        raise OperationalError(str(e))
+        import traceback
+        print("DB CONNECT ERROR:", repr(e))
+        traceback.print_exc()
+        raise
