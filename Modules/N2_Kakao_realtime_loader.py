@@ -167,7 +167,7 @@ def return_realtime_operations(current_time, minutes_interval):
         temp_route_df = route_df[(route_df['operationID']==temp_operation_id) & (route_df['routeID'].isin(temp_route_ids))].sort_values('routeSeq').reset_index(drop=True)
         temp_route_df_one = temp_route_df.copy()
 
-        temp_route_df_one['dispatchIDs'] = temp_route_df_one['dispatchIDs'].apply(lambda x: ast.literal_eval(x) if len(ast.literal_eval(x)) > 0 else np.nan)
+        temp_route_df_one['dispatchIDs'] = temp_route_df_one['dispatchIDs'].apply(lambda x: ast.literal_eval(x) if isinstance(x, str) and x.strip() != "" else np.nan)
         temp_route_df_one['lon'] = temp_route_df_one['lon'].apply(lambda x: ast.literal_eval(x) if len(ast.literal_eval(x)) > 0 else np.nan)
         temp_route_df_one['lat'] = temp_route_df_one['lat'].apply(lambda x: ast.literal_eval(x) if len(ast.literal_eval(x)) > 0 else np.nan)
 
