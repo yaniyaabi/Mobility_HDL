@@ -180,10 +180,19 @@ def return_realtime_operations(current_time, minutes_interval):
         temp_route_df_one = temp_route_df_one.dropna(subset=['dispatchIDs', 'lat', 'lon']).copy()
 
         temp_route_df_explode = temp_route_df_one.explode('dispatchIDs').reset_index(drop=True)
+
+        if temp_route_df_explode.empty:
+            continue
+
         temp_route_df_explode['latlon'] = temp_route_df_explode.apply(
             lambda row: list(zip(row['lat'], row['lon'])), axis=1
         )
         temp_route_df_explode = temp_route_df_explode.explode('latlon').reset_index(drop=True)
+
+        temp_route_df_explode = temp_route_df_explode.dropna(subset=['latlon']).copy()
+
+        if temp_route_df_explode.empty:
+            continue
 
         temp_route_df_explode['lat'] = temp_route_df_explode['latlon'].apply(lambda x: x[0])
         temp_route_df_explode['lon'] = temp_route_df_explode['latlon'].apply(lambda x: x[1])
