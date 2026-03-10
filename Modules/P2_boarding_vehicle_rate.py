@@ -151,7 +151,7 @@ def return_boaring_vehicle_rates(current_time, days_interval):
     
     
     temp_route_df = temp_route_df[['originDeptTime_datetime', 'destArrivalTime_datetime', 'vehicleType', 'onboardingNum']].copy()
-    temp_route_df['Capacity'] = [max_seats[temp_route_df['vehicleType'][i]] for i in range(len(temp_route_df))]
+    temp_route_df['Capacity'] = temp_route_df['vehicleType'].map(max_seats)
 
     temp_route_df['originDeptTime_datetime'] = pd.to_datetime(
         temp_route_df['originDeptTime_datetime'], errors='coerce'
@@ -161,15 +161,14 @@ def return_boaring_vehicle_rates(current_time, days_interval):
     )
 
     temp_route_df = temp_route_df.dropna(
-        subset=['originDeptTime_datetime', 'destArrivalTime_datetime']
+        subset=['originDeptTime_datetime', 'destArrivalTime_datetime', 'Capacity']
     ).copy()
 
     if temp_route_df.empty:
         return None, None, {"mean_daily": 0, "mean_hourly": 0}
 
     temp_route_df['trip_duration'] = (
-        temp_route_df['destArrivalTime_datetime'].astype('datetime64[ns]')
-        - temp_route_df['originDeptTime_datetime'].astype('datetime64[ns]')
+        temp_route_df['destArrivalTime_datetime'] - temp_route_df['originDeptTime_datetime']
     ).dt.total_seconds()
     
     
