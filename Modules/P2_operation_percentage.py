@@ -147,70 +147,10 @@ def return_boaring_rates(current_time, days_interval):
     temp_route_df['vehicleType'] = [vehicle_dict[temp_route_df['vehicleID'][i]] for i in range(len(temp_route_df))]
     
     
-    
-    
-    
-    temp_route_df = temp_route_df[['originDeptTime_datetime', 'destArrivalTime_datetime', 'vehicleType', 'onboardingNum']].copy()
+    temp_route_df = temp_route_df[['originDeptTime_datetime', 'destArrivalTime_datetime', 'vehicleType', 'onboardingNum']]
     temp_route_df['Capacity'] = [max_seats[temp_route_df['vehicleType'][i]] for i in range(len(temp_route_df))]
 
-    temp_route_df['originDeptTime_datetime'] = pd.to_datetime(
-        temp_route_df['originDeptTime_datetime'], errors='coerce'
-    )
-    temp_route_df['destArrivalTime_datetime'] = pd.to_datetime(
-        temp_route_df['destArrivalTime_datetime'], errors='coerce'
-    )
-
-    temp_route_df = temp_route_df.dropna(
-        subset=['originDeptTime_datetime', 'destArrivalTime_datetime']
-    ).copy()
-
-    temp_route_df['destArrivalTime_datetime'] = pd.to_datetime(
-    temp_route_df['destArrivalTime_datetime'], errors='coerce'
-)
-
-    temp_route_df = temp_route_df.dropna(
-        subset=['originDeptTime_datetime', 'destArrivalTime_datetime']
-    ).copy()
-
-    print("origin dtype:", temp_route_df['originDeptTime_datetime'].dtype)
-    print("dest dtype:", temp_route_df['destArrivalTime_datetime'].dtype)
-
-    if len(temp_route_df) > 0:
-        print("origin sample type:", type(temp_route_df['originDeptTime_datetime'].iloc[0]))
-        print("dest sample type:", type(temp_route_df['destArrivalTime_datetime'].iloc[0]))
-    else:
-        print("temp_route_df is empty")
-
-    
-    temp_route_df['trip_duration'] = (
-        temp_route_df['destArrivalTime_datetime'].astype('datetime64[ns]')
-        - temp_route_df['originDeptTime_datetime'].astype('datetime64[ns]')
-    ).dt.total_seconds()
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    #temp_route_df = temp_route_df[['originDeptTime_datetime', 'destArrivalTime_datetime', 'vehicleType', 'onboardingNum']]
-    #temp_route_df['Capacity'] = [max_seats[temp_route_df['vehicleType'][i]] for i in range(len(temp_route_df))]
-
-    #temp_route_df['trip_duration'] = (temp_route_df['destArrivalTime_datetime'] - temp_route_df['originDeptTime_datetime']).dt.total_seconds()
+    temp_route_df['trip_duration'] = (temp_route_df['destArrivalTime_datetime'] - temp_route_df['originDeptTime_datetime']).dt.total_seconds()
     temp_route_df['boarded'] = temp_route_df['onboardingNum'] > 0
     temp_route_df['date'] = temp_route_df['originDeptTime_datetime'].dt.date
     temp_route_df['Hour'] = temp_route_df['originDeptTime_datetime'].dt.hour
