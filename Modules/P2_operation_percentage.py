@@ -164,6 +164,24 @@ def return_boaring_rates(current_time, days_interval):
         subset=['originDeptTime_datetime', 'destArrivalTime_datetime']
     ).copy()
 
+    temp_route_df['destArrivalTime_datetime'] = pd.to_datetime(
+    temp_route_df['destArrivalTime_datetime'], errors='coerce'
+)
+
+    temp_route_df = temp_route_df.dropna(
+        subset=['originDeptTime_datetime', 'destArrivalTime_datetime']
+    ).copy()
+
+    print("origin dtype:", temp_route_df['originDeptTime_datetime'].dtype)
+    print("dest dtype:", temp_route_df['destArrivalTime_datetime'].dtype)
+
+    if len(temp_route_df) > 0:
+        print("origin sample type:", type(temp_route_df['originDeptTime_datetime'].iloc[0]))
+        print("dest sample type:", type(temp_route_df['destArrivalTime_datetime'].iloc[0]))
+    else:
+        print("temp_route_df is empty")
+
+    
     temp_route_df['trip_duration'] = (
         temp_route_df['destArrivalTime_datetime'].astype('datetime64[ns]')
         - temp_route_df['originDeptTime_datetime'].astype('datetime64[ns]')
