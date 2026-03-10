@@ -165,8 +165,8 @@ def return_boaring_vehicle_rates(current_time, days_interval):
     ).copy()
 
     if temp_route_df.empty:
-        return None, None, {"mean_daily": 0, "mean_hourly": 0}
-
+        return None, None, [0, 0]
+        
     temp_route_df['trip_duration'] = (
         temp_route_df['destArrivalTime_datetime'] - temp_route_df['originDeptTime_datetime']
     ).dt.total_seconds()
