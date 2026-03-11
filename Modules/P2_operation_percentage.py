@@ -31,58 +31,12 @@ max_seats = {
 }
 vehicle_types = list(max_seats.keys())
 
-#def parse_onboarding_time(t):
-    #try:
-        #t_str = str(int(t)).zfill(12)
-        #return datetime.strptime(t_str, "%Y%m%d%H%M")
-    #except:
-        #return np.nan
-
-
-
-
 def parse_onboarding_time(t):
     try:
-        if pd.isna(t):
-            return np.nan
-
-        # bytes 들어오면 문자열로
-        if isinstance(t, bytes):
-            t = t.decode("utf-8", errors="ignore")
-
-        t_str = str(t).strip()
-
-        # 소수점 붙은 문자열 방지: '202602250823.0'
-        if "." in t_str:
-            t_str = t_str.split(".")[0]
-
-        # 숫자만 남기기
-        t_str = "".join(ch for ch in t_str if ch.isdigit())
-
-        # 길이에 따라 파싱
-        if len(t_str) == 12:
-            return datetime.strptime(t_str, "%Y%m%d%H%M")
-        elif len(t_str) == 14:
-            return datetime.strptime(t_str, "%Y%m%d%H%M%S")
-        else:
-            return np.nan
-
-    except Exception:
+        t_str = str(int(t)).zfill(12)
+        return datetime.strptime(t_str, "%Y%m%d%H%M")
+    except:
         return np.nan
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 current_mode = st.secrets.get("mode", "static")
 
@@ -178,14 +132,8 @@ operation_df['startTime_datetime'] = operation_df['startTime'].apply(parse_onboa
 operation_df['endTime_datetime'] = operation_df['endTime'].apply(parse_onboarding_time)
 
 route_df['originDeptTime_datetime'] = route_df['originDeptTime'].apply(parse_onboarding_time)
-#route_df['destArrivalTime_datetime'] = route_df['destArrivalTime'].apply(parse_onboarding_time)
-route_df['destArrivalTime_datetime'] = pd.to_datetime(
-    pd.to_numeric(route_df['destArrivalTime'], errors='coerce')
-    .astype('Int64')
-    .astype(str),
-    format="%Y%m%d%H%M",
-    errors='coerce'
-)
+route_df['destArrivalTime_datetime'] = route_df['destArrivalTime'].apply(parse_onboarding_time)
+
 print(route_df[['destArrivalTime', 'destArrivalTime_datetime']].head(20))
 
 def return_boaring_rates(current_time, days_interval):
@@ -213,68 +161,18 @@ def return_boaring_rates(current_time, days_interval):
     print(temp_route_df.columns)
     print(temp_route_df[['originDeptTime_datetime', 'destArrivalTime_datetime']])
 
-
-
     
-    # 두 컬럼을 다시 강제로 datetime64[ns]로 통일
-    temp_route_df['originDeptTime_datetime'] = pd.to_datetime(
-        temp_route_df['originDeptTime_datetime'], errors='coerce'
-    )
-    temp_route_df['destArrivalTime_datetime'] = pd.to_datetime(
-        temp_route_df['destArrivalTime_datetime'], errors='coerce'
-    )
+    temp_route_df = temp_route_df[['originDeptTime_datetime', 'destArrivalTime_datetime', 'vehicleType', 'onboardingNum']]
+    temp_route_df['Capacity'] = [max_seats[temp_route_df['vehicleType'][i]] for i in range(len(temp_route_df))]
 
-    temp_route_df = temp_route_df.loc[
-        temp_route_df['originDeptTime_datetime'].notna() &
-        temp_route_df['destArrivalTime_datetime'].notna() &
-        temp_route_df['Capacity'].notna()
-    ].copy()
-
-    temp_route_df['trip_duration'] = (
-        temp_route_df['destArrivalTime_datetime'].sub(temp_route_df['originDeptTime_datetime'])
-    ).dt.total_seconds()
-
-    temp_route_df = temp_route_df.loc[
-        temp_route_df['trip_duration'].notna() &
-        (temp_route_df['trip_duration'] > 0)
-    ].copy()
-
+    print(temp_route_df.columns)
+    print(temp_route_df[['originDeptTime_datetime', 'destArrivalTime_datetime']])
+    
+    temp_route_df['trip_duration'] = (temp_route_df['destArrivalTime_datetime'] - temp_route_df['originDeptTime_datetime']).dt.total_seconds()
     temp_route_df['boarded'] = temp_route_df['onboardingNum'] > 0
     temp_route_df['date'] = temp_route_df['originDeptTime_datetime'].dt.date
     temp_route_df['Hour'] = temp_route_df['originDeptTime_datetime'].dt.hour
     temp_route_df['Day'] = [(temp_route_df['originDeptTime_datetime'][i] - current_time).days for i in range(len(temp_route_df))]
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    #temp_route_df = temp_route_df[['originDeptTime_datetime', 'destArrivalTime_datetime', 'vehicleType', 'onboardingNum']]
-    #temp_route_df['Capacity'] = [max_seats[temp_route_df['vehicleType'][i]] for i in range(len(temp_route_df))]
-
-    #print(temp_route_df.columns)
-    #print(temp_route_df[['originDeptTime_datetime', 'destArrivalTime_datetime']])
-    
-    #temp_route_df['trip_duration'] = (temp_route_df['destArrivalTime_datetime'] - temp_route_df['originDeptTime_datetime']).dt.total_seconds()
-    #temp_route_df['boarded'] = temp_route_df['onboardingNum'] > 0
-    #temp_route_df['date'] = temp_route_df['originDeptTime_datetime'].dt.date
-    #temp_route_df['Hour'] = temp_route_df['originDeptTime_datetime'].dt.hour
-    #temp_route_df['Day'] = [(temp_route_df['originDeptTime_datetime'][i] - current_time).days for i in range(len(temp_route_df))]
 
     past_df = temp_route_df[temp_route_df['Day'] < -days_interval].reset_index(drop=True)
     last_df = temp_route_df[temp_route_df['Day'] >= -days_interval].reset_index(drop=True)
@@ -337,41 +235,9 @@ def return_boaring_rates(current_time, days_interval):
     hourly_pivot = hourly_pivot.reset_index()
 
     hourly_df = hourly_pivot[['Hour', 'carnivalReg', 'carnivalWheel', 'IONIQ5']]
-
-
-
-
-
-
     
-    mean_last_occupancy = np.nanmean(daily_last_df[vehicle_types].to_numpy()) if not daily_last_df.empty else 0
-    mean_past_occupancy = np.nanmean(daily_past_df[vehicle_types].to_numpy()) if not daily_past_df.empty else 0
-
-    mean_last_occupancy = 0 if pd.isna(mean_last_occupancy) else mean_last_occupancy
-    mean_past_occupancy = 0 if pd.isna(mean_past_occupancy) else mean_past_occupancy
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    #mean_last_occupancy = np.nanmean(daily_last_df[vehicle_types])
-    #mean_past_occupancy = np.nanmean(daily_past_df[vehicle_types])
+    mean_last_occupancy = np.nanmean(daily_last_df[vehicle_types])
+    mean_past_occupancy = np.nanmean(daily_past_df[vehicle_types])
 
     daily_last_df = daily_last_df.rename(columns={
         'carnivalReg': '카니발(일반)',
