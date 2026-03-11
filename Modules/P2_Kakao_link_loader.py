@@ -126,68 +126,28 @@ route_df['originDeptTime_datetime'] = route_df['originDeptTime'].apply(parse_onb
 route_df['destArrivalTime_datetime'] = route_df['destArrivalTime'].apply(parse_onboarding_time)
 
 
-# def return_link_frequency(current_time, day_interval):
-
-#     temp_route_df = route_df[(route_df['destArrivalTime_datetime'] <= current_time) & (route_df['originDeptTime_datetime'] >= current_time - dt.timedelta(days=day_interval))].reset_index(drop=True)
-
-#     link_list = []
-
-#     for idx, row in temp_route_df.iterrows():
-#         lons = ast.literal_eval(row['lon'])
-#         lats = ast.literal_eval(row['lat'])
-
-#         for i in range(len(lons) - 1):
-#             link = ((lons[i], lats[i]), (lons[i+1], lats[i+1]))
-#             link_list.append(link)
-
-#     link_counter = Counter(link_list)
-
-#     link_df = pd.DataFrame([
-#         {'start_lon': s[0], 'start_lat': s[1],
-#         'end_lon': e[0], 'end_lat': e[1],
-#         'count': count}
-#         for ((s, e), count) in link_counter.items()
-#     ])
-
-#     return link_df, pd.to_datetime(temp_route_df.sort_values('destArrivalTime_datetime')['destArrivalTime_datetime'].values[-1]).to_pydatetime()
-
 def return_link_frequency(current_time, day_interval):
 
-    temp_route_df = route_df[
-        (route_df['destArrivalTime_datetime'] <= current_time) &
-        (route_df['originDeptTime_datetime'] >= current_time - dt.timedelta(days=day_interval))
-    ].reset_index(drop=True)
+    temp_route_df = route_df[(route_df['destArrivalTime_datetime'] <= current_time) & (route_df['originDeptTime_datetime'] >= current_time - dt.timedelta(days=day_interval))].reset_index(drop=True)
 
     link_list = []
 
     for idx, row in temp_route_df.iterrows():
         lons = ast.literal_eval(row['lon'])
         lats = ast.literal_eval(row['lat'])
-        link_ids = ast.literal_eval(row['linkIDs'])
 
-        # lon/lat로 만들어지는 링크 개수와 link_id 개수가 맞는지 확인
-        n_links = min(len(lons) - 1, len(link_ids))
-
-        for i in range(n_links):
-            link = (
-                (lons[i], lats[i]),
-                (lons[i + 1], lats[i + 1]),
-                link_ids[i]
-            )
+        for i in range(len(lons) - 1):
+            link = ((lons[i], lats[i]), (lons[i+1], lats[i+1]))
             link_list.append(link)
 
-    link_counter = Counter(link_list)
+        link_counter = Counter(link_list)
 
-    link_df = pd.DataFrame([
-        {
-            'start_lon': s[0],
-            'start_lat': s[1],
-            'end_lon': e[0],
-            'end_lat': e[1],
-            'linkID': link_id,
-            'count': count
-        }
-        for ((s, e, link_id), count) in link_counter.items()
-    ])
+        link_df = pd.DataFrame([
+            {'start_lon': s[0], 'start_lat': s[1],
+                'end_lon': e[0], 'end_lat': e[1],
+                'count': count}
+        for ((s, e), count) in link_counter.items()
+        ])
 
     return link_df, pd.to_datetime(temp_route_df.sort_values('destArrivalTime_datetime')['destArrivalTime_datetime'].values[-1]).to_pydatetime()
+
