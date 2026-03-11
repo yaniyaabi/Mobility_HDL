@@ -178,8 +178,15 @@ operation_df['startTime_datetime'] = operation_df['startTime'].apply(parse_onboa
 operation_df['endTime_datetime'] = operation_df['endTime'].apply(parse_onboarding_time)
 
 route_df['originDeptTime_datetime'] = route_df['originDeptTime'].apply(parse_onboarding_time)
-route_df['destArrivalTime_datetime'] = route_df['destArrivalTime'].apply(parse_onboarding_time)
-
+#route_df['destArrivalTime_datetime'] = route_df['destArrivalTime'].apply(parse_onboarding_time)
+route_df['destArrivalTime_datetime'] = pd.to_datetime(
+    pd.to_numeric(route_df['destArrivalTime'], errors='coerce')
+    .astype('Int64')
+    .astype(str),
+    format="%Y%m%d%H%M",
+    errors='coerce'
+)
+print(route_df[['destArrivalTime', 'destArrivalTime_datetime']].head(20))
 
 def return_boaring_rates(current_time, days_interval):
 
