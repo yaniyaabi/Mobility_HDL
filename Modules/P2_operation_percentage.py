@@ -146,13 +146,12 @@ def return_boaring_rates(current_time, days_interval):
     temp_route_df = route_df[route_df['Operation_vehicle'].isin(temp_operation_df['Operation_vehicle'].unique().tolist())].reset_index(drop=True)
     temp_route_df['vehicleType'] = [vehicle_dict[temp_route_df['vehicleID'][i]] for i in range(len(temp_route_df))]
 
-    print(temp_route_df.columns)
-    print(temp_route_df)
-    
-    
     temp_route_df = temp_route_df[['originDeptTime_datetime', 'destArrivalTime_datetime', 'vehicleType', 'onboardingNum']]
     temp_route_df['Capacity'] = [max_seats[temp_route_df['vehicleType'][i]] for i in range(len(temp_route_df))]
 
+    print(temp_route_df.columns)
+    print(temp_route_df[['originDeptTime_datetime', 'destArrivalTime_datetime']])
+    
     temp_route_df['trip_duration'] = (temp_route_df['destArrivalTime_datetime'] - temp_route_df['originDeptTime_datetime']).dt.total_seconds()
     temp_route_df['boarded'] = temp_route_df['onboardingNum'] > 0
     temp_route_df['date'] = temp_route_df['originDeptTime_datetime'].dt.date
