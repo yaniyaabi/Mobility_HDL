@@ -108,7 +108,7 @@ if current_mode == "dynamic":
     mycursor.execute(query)
     data = mycursor.fetchall()
     con.close()
-    route_df = pd.DataFrame(data, columns=["routeID", "routeSeq", "operationID", "vehicleID", "routeInfo", "linkIDs", "NodeIDs", "originStationID", "originDeptTime", "destinationID", "onboardingNum", "dispatchIDs", "lon", "lat", "originBoardingPxIDs", "originGetoffPxIDs", "destBoardingPxIDs", "destGetoffPxIDs", "destArrivalTime", "routeCode"])
+    route_df = pd.DataFrame(data, columns=["routeID", "routeSeq", "operationID", "vehicleID", "routeInfo", "linkIDs", "NodeIDs", "originStationID", "originDeptTime", "destStationID", "destArrivalTime", "onboardingNum", "dispatchIDs", "lon", "lat", "originBoardingPxIDs", "originGetoffPxIDs", "destBoardingPxIDs", "destGetoffPxIDs", "routeCode"])
 
 else:
     dispatch_df = pd.read_csv(ROOT/"data"/"dispatch_df.csv")
@@ -248,3 +248,4 @@ def return_realtime_operations(current_time, minutes_interval):
         final_dropoff_info.append(dropoff_location_info)
 
     return final_operation_info, final_route_info, final_pickup_info, final_dropoff_info
+
