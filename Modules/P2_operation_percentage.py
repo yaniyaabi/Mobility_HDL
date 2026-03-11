@@ -152,6 +152,17 @@ def return_boaring_rates(current_time, days_interval):
     temp_route_df = temp_route_df[['originDeptTime_datetime', 'destArrivalTime_datetime', 'vehicleType', 'onboardingNum']].copy()
     temp_route_df['Capacity'] = temp_route_df['vehicleType'].map(max_seats)
 
+
+
+
+
+
+    print(temp_route_df.columns)
+    print(temp_route_df[['originDeptTime_datetime', 'destArrivalTime_datetime']])
+
+
+
+    
     # 두 컬럼을 다시 강제로 datetime64[ns]로 통일
     temp_route_df['originDeptTime_datetime'] = pd.to_datetime(
         temp_route_df['originDeptTime_datetime'], errors='coerce'
