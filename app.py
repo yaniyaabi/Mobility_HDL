@@ -50,7 +50,7 @@ PAGE_MAP = {
     "운영 효율":           P2.render,
     "서비스 접근성":        P3.render,
     "실시간 시뮬레이터":    P4.render,
-    "메세지 모니터링":      P5.render,
+    "운영 타임라인":      P5.render,
 }
 
 with st.sidebar:
@@ -110,7 +110,7 @@ if selected == "실시간 시뮬레이터":
         kakao_api_key=kakao_api_key
     )
 
-if selected == "메세지 모니터링":
+if selected == "운영 타임라인":
     PAGE_MAP[selected](
         current_time=current_time,
         temp_interval=temp_interval,
