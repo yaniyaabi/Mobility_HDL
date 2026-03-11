@@ -146,17 +146,59 @@ def return_boaring_rates(current_time, days_interval):
     temp_route_df = route_df[route_df['Operation_vehicle'].isin(temp_operation_df['Operation_vehicle'].unique().tolist())].reset_index(drop=True)
     temp_route_df['vehicleType'] = [vehicle_dict[temp_route_df['vehicleID'][i]] for i in range(len(temp_route_df))]
 
-    temp_route_df = temp_route_df[['originDeptTime_datetime', 'destArrivalTime_datetime', 'vehicleType', 'onboardingNum']]
-    temp_route_df['Capacity'] = [max_seats[temp_route_df['vehicleType'][i]] for i in range(len(temp_route_df))]
-
-    print(temp_route_df.columns)
-    print(temp_route_df[['originDeptTime_datetime', 'destArrivalTime_datetime']])
     
-    temp_route_df['trip_duration'] = (temp_route_df['destArrivalTime_datetime'] - temp_route_df['originDeptTime_datetime']).dt.total_seconds()
+    
+    
+    temp_route_df = temp_route_df[['originDeptTime_datetime', 'destArrivalTime_datetime', 'vehicleType', 'onboardingNum']].copy()
+    temp_route_df['Capacity'] = temp_route_df['vehicleType'].map(max_seats)
+
+    temp_route_df = temp_route_df.dropna(
+        subset=['originDeptTime_datetime', 'destArrivalTime_datetime', 'Capacity']
+    ).copy()
+
+    temp_route_df['trip_duration'] = (
+        temp_route_df['destArrivalTime_datetime'] - temp_route_df['originDeptTime_datetime']
+    ).dt.total_seconds()
+
+    temp_route_df = temp_route_df.dropna(subset=['trip_duration']).copy()
+    temp_route_df = temp_route_df[temp_route_df['trip_duration'] > 0].copy()
+
     temp_route_df['boarded'] = temp_route_df['onboardingNum'] > 0
     temp_route_df['date'] = temp_route_df['originDeptTime_datetime'].dt.date
     temp_route_df['Hour'] = temp_route_df['originDeptTime_datetime'].dt.hour
     temp_route_df['Day'] = [(temp_route_df['originDeptTime_datetime'][i] - current_time).days for i in range(len(temp_route_df))]
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    #temp_route_df = temp_route_df[['originDeptTime_datetime', 'destArrivalTime_datetime', 'vehicleType', 'onboardingNum']]
+    #temp_route_df['Capacity'] = [max_seats[temp_route_df['vehicleType'][i]] for i in range(len(temp_route_df))]
+
+    #print(temp_route_df.columns)
+    #print(temp_route_df[['originDeptTime_datetime', 'destArrivalTime_datetime']])
+    
+    #temp_route_df['trip_duration'] = (temp_route_df['destArrivalTime_datetime'] - temp_route_df['originDeptTime_datetime']).dt.total_seconds()
+    #temp_route_df['boarded'] = temp_route_df['onboardingNum'] > 0
+    #temp_route_df['date'] = temp_route_df['originDeptTime_datetime'].dt.date
+    #temp_route_df['Hour'] = temp_route_df['originDeptTime_datetime'].dt.hour
+    #temp_route_df['Day'] = [(temp_route_df['originDeptTime_datetime'][i] - current_time).days for i in range(len(temp_route_df))]
 
     past_df = temp_route_df[temp_route_df['Day'] < -days_interval].reset_index(drop=True)
     last_df = temp_route_df[temp_route_df['Day'] >= -days_interval].reset_index(drop=True)
@@ -220,8 +262,40 @@ def return_boaring_rates(current_time, days_interval):
 
     hourly_df = hourly_pivot[['Hour', 'carnivalReg', 'carnivalWheel', 'IONIQ5']]
 
-    mean_last_occupancy = np.nanmean(daily_last_df[vehicle_types])
-    mean_past_occupancy = np.nanmean(daily_past_df[vehicle_types])
+
+
+
+
+
+    
+    mean_last_occupancy = np.nanmean(daily_last_df[vehicle_types].to_numpy()) if not daily_last_df.empty else 0
+    mean_past_occupancy = np.nanmean(daily_past_df[vehicle_types].to_numpy()) if not daily_past_df.empty else 0
+
+    mean_last_occupancy = 0 if pd.isna(mean_last_occupancy) else mean_last_occupancy
+    mean_past_occupancy = 0 if pd.isna(mean_past_occupancy) else mean_past_occupancy
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    #mean_last_occupancy = np.nanmean(daily_last_df[vehicle_types])
+    #mean_past_occupancy = np.nanmean(daily_past_df[vehicle_types])
 
     daily_last_df = daily_last_df.rename(columns={
         'carnivalReg': '카니발(일반)',
