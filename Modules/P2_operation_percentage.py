@@ -152,16 +152,28 @@ def return_boaring_rates(current_time, days_interval):
     temp_route_df = temp_route_df[['originDeptTime_datetime', 'destArrivalTime_datetime', 'vehicleType', 'onboardingNum']].copy()
     temp_route_df['Capacity'] = temp_route_df['vehicleType'].map(max_seats)
 
-    temp_route_df = temp_route_df.dropna(
-        subset=['originDeptTime_datetime', 'destArrivalTime_datetime', 'Capacity']
-    ).copy()
+    # 두 컬럼을 다시 강제로 datetime64[ns]로 통일
+    temp_route_df['originDeptTime_datetime'] = pd.to_datetime(
+        temp_route_df['originDeptTime_datetime'], errors='coerce'
+    )
+    temp_route_df['destArrivalTime_datetime'] = pd.to_datetime(
+        temp_route_df['destArrivalTime_datetime'], errors='coerce'
+    )
+
+    temp_route_df = temp_route_df.loc[
+        temp_route_df['originDeptTime_datetime'].notna() &
+        temp_route_df['destArrivalTime_datetime'].notna() &
+        temp_route_df['Capacity'].notna()
+    ].copy()
 
     temp_route_df['trip_duration'] = (
-        temp_route_df['destArrivalTime_datetime'] - temp_route_df['originDeptTime_datetime']
+        temp_route_df['destArrivalTime_datetime'].sub(temp_route_df['originDeptTime_datetime'])
     ).dt.total_seconds()
 
-    temp_route_df = temp_route_df.dropna(subset=['trip_duration']).copy()
-    temp_route_df = temp_route_df[temp_route_df['trip_duration'] > 0].copy()
+    temp_route_df = temp_route_df.loc[
+        temp_route_df['trip_duration'].notna() &
+        (temp_route_df['trip_duration'] > 0)
+    ].copy()
 
     temp_route_df['boarded'] = temp_route_df['onboardingNum'] > 0
     temp_route_df['date'] = temp_route_df['originDeptTime_datetime'].dt.date
