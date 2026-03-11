@@ -145,6 +145,9 @@ def return_boaring_rates(current_time, days_interval):
     route_df['Operation_vehicle'] = [str(route_df['operationID'][i]) + '_' + str(route_df['vehicleID'][i]) for i in range(len(route_df))]
     temp_route_df = route_df[route_df['Operation_vehicle'].isin(temp_operation_df['Operation_vehicle'].unique().tolist())].reset_index(drop=True)
     temp_route_df['vehicleType'] = [vehicle_dict[temp_route_df['vehicleID'][i]] for i in range(len(temp_route_df))]
+
+    print(temp_route_df.columns)
+    print(temp_route_df)
     
     
     temp_route_df = temp_route_df[['originDeptTime_datetime', 'destArrivalTime_datetime', 'vehicleType', 'onboardingNum']]
