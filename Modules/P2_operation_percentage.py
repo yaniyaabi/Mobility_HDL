@@ -31,12 +31,58 @@ max_seats = {
 }
 vehicle_types = list(max_seats.keys())
 
+#def parse_onboarding_time(t):
+    #try:
+        #t_str = str(int(t)).zfill(12)
+        #return datetime.strptime(t_str, "%Y%m%d%H%M")
+    #except:
+        #return np.nan
+
+
+
+
 def parse_onboarding_time(t):
     try:
-        t_str = str(int(t)).zfill(12)
-        return datetime.strptime(t_str, "%Y%m%d%H%M")
-    except:
+        if pd.isna(t):
+            return np.nan
+
+        # bytes 들어오면 문자열로
+        if isinstance(t, bytes):
+            t = t.decode("utf-8", errors="ignore")
+
+        t_str = str(t).strip()
+
+        # 소수점 붙은 문자열 방지: '202602250823.0'
+        if "." in t_str:
+            t_str = t_str.split(".")[0]
+
+        # 숫자만 남기기
+        t_str = "".join(ch for ch in t_str if ch.isdigit())
+
+        # 길이에 따라 파싱
+        if len(t_str) == 12:
+            return datetime.strptime(t_str, "%Y%m%d%H%M")
+        elif len(t_str) == 14:
+            return datetime.strptime(t_str, "%Y%m%d%H%M%S")
+        else:
+            return np.nan
+
+    except Exception:
         return np.nan
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 current_mode = st.secrets.get("mode", "static")
 
